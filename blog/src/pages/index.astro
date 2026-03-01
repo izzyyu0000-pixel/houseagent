@@ -1,0 +1,29 @@
+---
+import { getCollection } from 'astro:content';
+import BlogLayout from '../layouts/BlogLayout.astro';
+
+const BLOG_BASE = '/blog';
+const publishedPosts = (await getCollection('blog', ({ data }) => !data.draft))
+  .sort((a, b) => b.data.pubDate.getTime() - a.data.pubDate.getTime())
+  .slice(0, 3);
+---
+
+<BlogLayout
+  title="HouseAgent Blog"
+  description="房仲內容策略、成交文案與市場觀察。"
+  canonicalPath={`${BLOG_BASE}/`}
+>
+  <h1>HouseAgent Blog</h1>
+  <p>這裡整理房仲實務文章，部署路徑為 <code>/blog/</code>。</p>
+  <p><a href={`${BLOG_BASE}/posts/`}>瀏覽全部文章</a></p>
+
+  <h2>最新文章</h2>
+  <ul>
+    {publishedPosts.map((post) => (
+      <li>
+        <a href={`${BLOG_BASE}/posts/${post.slug}/`}>{post.data.title}</a>
+        <p>{post.data.description}</p>
+      </li>
+    ))}
+  </ul>
+</BlogLayout>

@@ -1,0 +1,36 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import { getCollection } from 'astro:content';
+import BlogLayout from '../../layouts/BlogLayout.astro';
+
+const BLOG_BASE = '/blog';
+
+export async function getStaticPaths() {
+  const posts = await getCollection('blog', ({ data }) => !data.draft);
+  return posts.map((post) => ({
+    params: { slug: post.slug },
+    props: { post },
+  }));
+}
+
+const { post } = Astro.props as { post: CollectionEntry<'blog'> };
+const { Content } = await post.render();
+---
+
+<BlogLayout
+  title={`${post.data.title} | HouseAgent Blog`}
+  description={post.data.description}
+  canonicalPath={`${BLOG_BASE}/posts/${post.slug}/`}
+>
+  <p><a href={`${BLOG_BASE}/posts/`}>回到文章列表</a></p>
+  <article>
+    <h1>{post.data.title}</h1>
+    <p>
+      <small>
+        發布於 {post.data.pubDate.toISOString().slice(0, 10)}
+        {post.data.updatedDate ? ` | 更新於 ${post.data.updatedDate.toISOString().slice(0, 10)}` : ''}
+      </small>
+    </p>
+    <Content />
+  </article>
+</BlogLayout>

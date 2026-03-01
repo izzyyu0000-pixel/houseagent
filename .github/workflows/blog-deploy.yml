@@ -1,0 +1,75 @@
+name: Blog Deploy
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'blog/**'
+  workflow_dispatch:
+
+concurrency:
+  group: blog-deploy-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  deploy-blog:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
+      CF_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
+      CF_PAGES_PROJECT: ${{ secrets.CF_PAGES_PROJECT }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: blog/package-lock.json
+
+      - name: Install blog dependencies
+        working-directory: blog
+        run: npm ci
+
+      - name: Build blog
+        working-directory: blog
+        run: ASTRO_TELEMETRY_DISABLED=1 npm run build
+
+      - name: Deploy Cloudflare Pages (retry once)
+        shell: bash
+        run: |
+          set -euo pipefail
+          attempt=1
+          until [ "$attempt" -gt 2 ]; do
+            echo "Cloudflare Pages deploy attempt ${attempt}/2"
+            if npx wrangler pages deploy blog/dist \
+              --project-name "${CF_PAGES_PROJECT}" \
+              --branch "${GITHUB_REF_NAME}" \
+              --commit-dirty=true; then
+              echo "Cloudflare Pages deploy succeeded"
+              exit 0
+            fi
+            if [ "$attempt" -eq 2 ]; then
+              echo "::error::Cloudflare Pages deploy failed after 2 attempts"
+              exit 1
+            fi
+            attempt=$((attempt + 1))
+            sleep 15
+          done
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ env.CF_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ env.CF_ACCOUNT_ID }}
+
+      - name: Failure summary
+        if: failure()
+        run: |
+          {
+            echo "## Blog deploy failed"
+            echo "- Workflow: $GITHUB_WORKFLOW"
+            echo "- Commit: $GITHUB_SHA"
+            echo "- Branch: $GITHUB_REF_NAME"
+            echo "- Check failed step logs above."
+          } >> "$GITHUB_STEP_SUMMARY"

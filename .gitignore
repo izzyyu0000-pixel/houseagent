@@ -1,0 +1,12 @@
+# Dependencies
+node_modules/
+
+# Environment variables (重要！保護你的 API Key)
+.env
+.env.local
+
+# Build output
+dist/
+
+# System files
+.DS_Store

@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://domain.com/blog/sitemap-index.xml

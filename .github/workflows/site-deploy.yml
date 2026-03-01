@@ -1,0 +1,68 @@
+name: Site Deploy
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '**'
+      - '!blog/**'
+      - '!docs/**'
+      - '!.github/**'
+  workflow_dispatch:
+
+concurrency:
+  group: site-deploy-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  deploy-site:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      FIREBASE_PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID }}
+      FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build main site
+        run: npm run build
+
+      - name: Deploy Firebase Hosting (retry once)
+        shell: bash
+        run: |
+          set -euo pipefail
+          attempt=1
+          until [ "$attempt" -gt 2 ]; do
+            echo "Firebase deploy attempt ${attempt}/2"
+            if npx firebase-tools deploy --only hosting --project "${FIREBASE_PROJECT_ID}" --token "${FIREBASE_TOKEN}" --non-interactive; then
+              echo "Firebase deploy succeeded"
+              exit 0
+            fi
+            if [ "$attempt" -eq 2 ]; then
+              echo "::error::Firebase deploy failed after 2 attempts"
+              exit 1
+            fi
+            attempt=$((attempt + 1))
+            sleep 15
+          done
+
+      - name: Failure summary
+        if: failure()
+        run: |
+          {
+            echo "## Site deploy failed"
+            echo "- Workflow: $GITHUB_WORKFLOW"
+            echo "- Commit: $GITHUB_SHA"
+            echo "- Branch: $GITHUB_REF_NAME"
+            echo "- Check failed step logs above."
+          } >> "$GITHUB_STEP_SUMMARY"
