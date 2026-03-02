@@ -9,12 +9,12 @@ interface Props {
 import '../styles/blog.css';
 
 const { title, description, canonicalPath, ogImage } = Astro.props;
-const BLOG_BASE = '/blog';
+const BLOG_BASE = '';
 const siteName = 'HouseAgent Blog';
 const mainSiteUrl = 'https://houseagnet.web.app';
-const canonicalUrl = new URL(canonicalPath, 'https://domain.com').toString();
+const canonicalUrl = new URL(canonicalPath, 'https://houseagent.pages.dev').toString();
 const resolvedOgImage = ogImage
-  ? new URL(ogImage, 'https://domain.com').toString()
+  ? new URL(ogImage, 'https://houseagent.pages.dev').toString()
   : undefined;
 ---
 

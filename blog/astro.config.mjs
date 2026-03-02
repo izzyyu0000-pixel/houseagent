@@ -5,8 +5,7 @@ import mdx from '@astrojs/mdx';
 
 // https://astro.build/config
 export default defineConfig({
-  site: 'https://domain.com',
-  base: '/blog',
+  site: 'https://houseagent.pages.dev',
   trailingSlash: 'always',
   integrations: [mdx(), sitemap()],
 });

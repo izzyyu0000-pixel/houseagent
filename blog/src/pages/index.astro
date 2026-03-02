@@ -2,7 +2,7 @@
 import { getCollection } from 'astro:content';
 import BlogLayout from '../layouts/BlogLayout.astro';
 
-const BLOG_BASE = '/blog';
+const BLOG_BASE = '';
 const fallbackCover = `${BLOG_BASE}/images/default-cover.svg`;
 const mainSiteUrl = 'https://houseagnet.web.app';
 const publishedPosts = (await getCollection('blog', ({ data }) => !data.draft))

@@ -155,7 +155,7 @@ export function CardGenerator({ user }: CardGeneratorProps) {
           
           <div className="flex items-center gap-3">
             <a
-              href="https://houseagent.pages.dev/blog/"
+              href="https://houseagent.pages.dev/"
               target="_blank"
               rel="noreferrer"
               className="text-sm font-semibold text-gray-700 hover:text-gray-900 border border-gray-300 px-3 py-1.5 rounded transition-colors"
@@ -224,7 +224,7 @@ export function CardGenerator({ user }: CardGeneratorProps) {
           
           <div className="flex items-center gap-6">
             <a 
-              href="https://houseagent.pages.dev/blog/" 
+              href="https://houseagent.pages.dev/" 
               target="_blank" 
               rel="noreferrer"
               className="text-sm text-gray-500 hover:text-gray-900 transition-colors"
