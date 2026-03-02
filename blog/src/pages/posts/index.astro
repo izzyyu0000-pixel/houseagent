@@ -3,27 +3,55 @@ import { getCollection } from 'astro:content';
 import BlogLayout from '../../layouts/BlogLayout.astro';
 
 const BLOG_BASE = '/blog';
+const fallbackCover = `${BLOG_BASE}/images/default-cover.svg`;
 const posts = (await getCollection('blog', ({ data }) => !data.draft)).sort(
   (a, b) => b.data.pubDate.getTime() - a.data.pubDate.getTime(),
 );
+
+const formatDate = (date: Date) =>
+  date.toLocaleDateString('zh-TW', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  });
 ---
 
 <BlogLayout
   title="文章列表 | HouseAgent Blog"
-  description="瀏覽 HouseAgent Blog 的全部公開文章。"
+  description="瀏覽 HouseAgent Blog 全部公開文章，掌握成交策略與市場觀察。"
   canonicalPath={`${BLOG_BASE}/posts/`}
+  ogImage={fallbackCover}
 >
-  <h1>文章列表</h1>
-  <p><a href={`${BLOG_BASE}/`}>回到首頁</a></p>
-  <ul>
+  <section class="section-head">
+    <h1>文章列表</h1>
+    <p>{posts.length} 篇公開文章</p>
+  </section>
+  <ul class="post-grid">
     {posts.map((post) => (
-      <li>
-        <a href={`${BLOG_BASE}/posts/${post.slug}/`}>{post.data.title}</a>
-        <p>{post.data.description}</p>
-        <small>
-          發布於 {post.data.pubDate.toISOString().slice(0, 10)}
-          {post.data.tags.length > 0 ? ` | 標籤：${post.data.tags.join('、')}` : ''}
-        </small>
+      <li class="post-card">
+        <a class="card-link" href={`${BLOG_BASE}/posts/${post.slug}/`}>
+          <div class="card-cover">
+            <img
+              src={post.data.cover ?? fallbackCover}
+              alt={`${post.data.title} 封面`}
+              loading="lazy"
+              width="1280"
+              height="720"
+            />
+          </div>
+          <div class="card-body">
+            <p class="card-meta">{formatDate(post.data.pubDate)}</p>
+            <h2 class="card-title">{post.data.title}</h2>
+            <p class="card-description">{post.data.description}</p>
+            {post.data.tags.length > 0 && (
+              <div class="tag-list" aria-label="文章標籤">
+                {post.data.tags.map((tag) => (
+                  <span class="tag">{tag}</span>
+                ))}
+              </div>
+            )}
+          </div>
+        </a>
       </li>
     ))}
   </ul>

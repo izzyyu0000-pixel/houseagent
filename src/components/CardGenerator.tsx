@@ -154,6 +154,14 @@ export function CardGenerator({ user }: CardGeneratorProps) {
           <h1 className="text-2xl font-bold text-gray-900">房仲圖卡神器</h1>
           
           <div className="flex items-center gap-3">
+            <a
+              href="https://houseagent.pages.dev/blog/"
+              target="_blank"
+              rel="noreferrer"
+              className="text-sm font-semibold text-gray-700 hover:text-gray-900 border border-gray-300 px-3 py-1.5 rounded transition-colors"
+            >
+              部落格
+            </a>
             {user ? (
               <>
                 <span className="text-sm text-gray-600">{user.email}</span>
@@ -215,6 +223,14 @@ export function CardGenerator({ user }: CardGeneratorProps) {
           </div>
           
           <div className="flex items-center gap-6">
+            <a 
+              href="https://houseagent.pages.dev/blog/" 
+              target="_blank" 
+              rel="noreferrer"
+              className="text-sm text-gray-500 hover:text-gray-900 transition-colors"
+            >
+              📰 部落格
+            </a>
             <a 
               href="mailto:izzyyu0000@gmail.com" 
               className="text-sm text-gray-500 hover:text-gray-900 transition-colors"

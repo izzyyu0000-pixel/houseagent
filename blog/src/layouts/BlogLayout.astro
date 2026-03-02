@@ -3,10 +3,19 @@ interface Props {
   title: string;
   description: string;
   canonicalPath: string;
+  ogImage?: string;
 }
 
-const { title, description, canonicalPath } = Astro.props;
+import '../styles/blog.css';
+
+const { title, description, canonicalPath, ogImage } = Astro.props;
+const BLOG_BASE = '/blog';
+const siteName = 'HouseAgent Blog';
+const mainSiteUrl = 'https://houseagnet.web.app';
 const canonicalUrl = new URL(canonicalPath, 'https://domain.com').toString();
+const resolvedOgImage = ogImage
+  ? new URL(ogImage, 'https://domain.com').toString()
+  : undefined;
 ---
 
 <!doctype html>
@@ -18,13 +27,44 @@ const canonicalUrl = new URL(canonicalPath, 'https://domain.com').toString();
     <title>{title}</title>
     <meta name="description" content={description} />
     <link rel="canonical" href={canonicalUrl} />
+    <meta name="theme-color" content="#0f2f4f" />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonicalUrl} />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={siteName} />
+    {resolvedOgImage && <meta property="og:image" content={resolvedOgImage} />}
   </head>
   <body>
-    <main>
-      <slot />
-    </main>
+    <a class="skip-link" href="#main-content">跳到主要內容</a>
+    <div class="site-shell">
+      <header class="site-header">
+        <div class="container header-inner">
+          <a class="brand" href={`${BLOG_BASE}/`}>
+            <span class="brand-mark" aria-hidden="true">HA</span>
+            <span>{siteName}</span>
+          </a>
+          <nav class="main-nav" aria-label="主要導覽">
+            <a href={`${BLOG_BASE}/posts/`}>文章列表</a>
+            <a href={mainSiteUrl} target="_blank" rel="noreferrer">回主站</a>
+          </nav>
+        </div>
+      </header>
+
+      <main id="main-content" class="container page fade-in">
+        <slot />
+      </main>
+
+      <footer class="site-footer">
+        <div class="container footer-inner">
+          <p>© {new Date().getFullYear()} HouseAgent. All rights reserved.</p>
+          <div class="footer-links">
+            <a href={`${BLOG_BASE}/`}>首頁</a>
+            <a href={`${BLOG_BASE}/posts/`}>文章列表</a>
+            <a href={mainSiteUrl} target="_blank" rel="noreferrer">聯絡主站</a>
+          </div>
+        </div>
+      </footer>
+    </div>
   </body>
 </html>

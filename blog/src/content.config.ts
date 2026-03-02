@@ -9,6 +9,7 @@ const blog = defineCollection({
     updatedDate: z.coerce.date().optional(),
     // Astro treats "slug" as a reserved field; routing uses entry.slug.
     slug: z.string().optional(),
+    cover: z.string().optional(),
     tags: z.array(z.string()).default([]),
     draft: z.boolean().default(false),
   }),

@@ -3,27 +3,71 @@ import { getCollection } from 'astro:content';
 import BlogLayout from '../layouts/BlogLayout.astro';
 
 const BLOG_BASE = '/blog';
+const fallbackCover = `${BLOG_BASE}/images/default-cover.svg`;
+const mainSiteUrl = 'https://houseagnet.web.app';
 const publishedPosts = (await getCollection('blog', ({ data }) => !data.draft))
   .sort((a, b) => b.data.pubDate.getTime() - a.data.pubDate.getTime())
-  .slice(0, 3);
+  .slice(0, 6);
+
+const formatDate = (date: Date) =>
+  date.toLocaleDateString('zh-TW', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  });
 ---
 
 <BlogLayout
-  title="HouseAgent Blog"
-  description="房仲內容策略、成交文案與市場觀察。"
+  title="HouseAgent Blog | 房地產內容品牌"
+  description="專業房仲內容品牌，聚焦成交策略、市場洞察與實戰案例。"
   canonicalPath={`${BLOG_BASE}/`}
+  ogImage={fallbackCover}
 >
-  <h1>HouseAgent Blog</h1>
-  <p>這裡整理房仲實務文章，部署路徑為 <code>/blog/</code>。</p>
-  <p><a href={`${BLOG_BASE}/posts/`}>瀏覽全部文章</a></p>
+  <section class="hero">
+    <span class="chip">Real Estate Content Studio</span>
+    <h1>為房仲與團隊打造可成交的內容資產</h1>
+    <p>
+      從市場脈動、買賣流程到轉換文案，提供一套可以直接落地的房地產行銷內容，協助你穩定建立信任與成交節奏。
+    </p>
+    <div class="hero-actions">
+      <a class="button button-primary" href={`${BLOG_BASE}/posts/`}>看文章</a>
+      <a class="button button-ghost" href={mainSiteUrl} target="_blank" rel="noreferrer">回主站</a>
+    </div>
+  </section>
 
-  <h2>最新文章</h2>
-  <ul>
+  <section aria-labelledby="latest-posts-title">
+    <div class="section-head">
+      <h2 id="latest-posts-title">最新文章</h2>
+      <p>以實務角度整理，手機或桌面都能快速瀏覽重點。</p>
+    </div>
+    <ul class="post-grid">
     {publishedPosts.map((post) => (
-      <li>
-        <a href={`${BLOG_BASE}/posts/${post.slug}/`}>{post.data.title}</a>
-        <p>{post.data.description}</p>
+      <li class="post-card">
+        <a class="card-link" href={`${BLOG_BASE}/posts/${post.slug}/`}>
+          <div class="card-cover">
+            <img
+              src={post.data.cover ?? fallbackCover}
+              alt={`${post.data.title} 封面`}
+              loading="lazy"
+              width="1280"
+              height="720"
+            />
+          </div>
+          <div class="card-body">
+            <p class="card-meta">{formatDate(post.data.pubDate)}</p>
+            <h3 class="card-title">{post.data.title}</h3>
+            <p class="card-description">{post.data.description}</p>
+            {post.data.tags.length > 0 && (
+              <div class="tag-list" aria-label="文章標籤">
+                {post.data.tags.slice(0, 3).map((tag) => (
+                  <span class="tag">{tag}</span>
+                ))}
+              </div>
+            )}
+          </div>
+        </a>
       </li>
     ))}
-  </ul>
+    </ul>
+  </section>
 </BlogLayout>
